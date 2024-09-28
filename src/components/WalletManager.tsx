@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWallet } from '../hooks/useWallet';
 
 const WalletManager: React.FC = () => {
@@ -13,11 +13,27 @@ const WalletManager: React.FC = () => {
     disconnectWallet,
     isValidAddress,
     fetchBalance,
+    updateBalance,
   } = useWallet();
 
   const [customAddress, setCustomAddress] = useState('');
   const [customBalance, setCustomBalance] = useState<string | null>(null);
   const [customAddressError, setCustomAddressError] = useState<string | null>(null);
+  const [networkName, setNetworkName] = useState<string>('');
+
+  useEffect(() => {
+    const getNetworkName = () => {
+      switch (chainId) {
+        case 1: return 'Ethereum Mainnet';
+        case 3: return 'Ropsten Testnet';
+        case 4: return 'Rinkeby Testnet';
+        case 5: return 'Goerli Testnet';
+        case 42: return 'Kovan Testnet';
+        default: return 'Unknown Network';
+      }
+    };
+    setNetworkName(getNetworkName());
+  }, [chainId]);
 
   const handleConnect = () => {
     connectWallet();
@@ -39,44 +55,48 @@ const WalletManager: React.FC = () => {
       return;
     }
     const fetchedBalance = await fetchBalance(customAddress);
-    if (fetchedBalance !== null && fetchedBalance !== undefined) {
+    if (fetchedBalance !== null) {
       setCustomBalance(fetchedBalance);
-    } else {
-      setCustomBalance(null);
-      setCustomAddressError('Failed to fetch balance');
     }
   };
 
+  const handleRefreshBalance = () => {
+    updateBalance();
+  };
+
   return (
-    <div>
-      <h1>Wallet Manager</h1>
+    <div className="wallet-manager">
+      <h1>Ethereum Wallet Manager</h1>
       {error && <p className="error">{error}</p>}
       {isLoading ? (
-        <p>Loading...</p>
+        <div className="loading-spinner"></div>
       ) : isConnected ? (
-        <div>
-          <p>Connected Address: {address}</p>
-          <p>Balance: {balance} ETH</p>
-          <p>Chain ID: {chainId}</p>
-          <button onClick={handleDisconnect}>Disconnect</button>
+        <div className="wallet-info">
+          <h2>Wallet Connected</h2>
+          <p><strong>Address:</strong> {address}</p>
+          <p><strong>Balance:</strong> {balance} ETH</p>
+          <p><strong>Network:</strong> {networkName} (Chain ID: {chainId})</p>
+          <button onClick={handleRefreshBalance} className="refresh-button">Refresh Balance</button>
+          <button onClick={handleDisconnect} className="disconnect-button">Disconnect</button>
         </div>
       ) : (
-        <button onClick={handleConnect}>Connect Wallet</button>
+        <button onClick={handleConnect} className="connect-button">Connect Wallet</button>
       )}
 
-      <div>
+      <div className="custom-address-checker">
         <h2>Check Balance of Custom Address</h2>
         <input
           type="text"
           value={customAddress}
           onChange={handleCustomAddressChange}
           placeholder="Enter Ethereum address"
+          className="address-input"
         />
-        <button onClick={handleFetchBalance} disabled={!isConnected}>
+        <button onClick={handleFetchBalance} disabled={!isConnected} className="fetch-button">
           Fetch Balance
         </button>
         {customAddressError && <p className="error">{customAddressError}</p>}
-        {customBalance !== null && <p>Balance: {customBalance} ETH</p>}
+        {customBalance !== null && <p className="custom-balance">Balance: {customBalance} ETH</p>}
       </div>
     </div>
   );
