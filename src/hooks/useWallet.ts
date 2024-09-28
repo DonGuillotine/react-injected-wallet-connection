@@ -112,12 +112,12 @@ export function useWallet() {
     };
   }, []);
 
-  const fetchBalance = useCallback(async (address: string) => {
+  const fetchBalance = useCallback(async (address: string): Promise<string | null> => {
     if (!isValidAddress(address)) {
       setError('Invalid Ethereum address');
-      return;
+      return null;
     }
-
+  
     setIsLoading(true);
     setError(null);
     try {
