@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useWallet } from '../hooks/useWallet';
+import { useWalletContext } from '../context/WalletContext';
 
 const WalletManager: React.FC = () => {
   const {
@@ -14,7 +14,7 @@ const WalletManager: React.FC = () => {
     isValidAddress,
     fetchBalance,
     updateBalance,
-  } = useWallet();
+  } = useWalletContext();
 
   const [customAddress, setCustomAddress] = useState('');
   const [customBalance, setCustomBalance] = useState<string | null>(null);
