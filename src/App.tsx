@@ -1,12 +1,15 @@
 import WalletManager from './components/WalletManager';
+import { WalletProvider } from './context/WalletContext'
 import './App.css'
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <WalletManager />
-    </div>
-  )
-}
+    <WalletProvider>
+      <div className="App">
+        <WalletManager />
+      </div>
+    </WalletProvider>
+  );
+};
 
 export default App
